@@ -924,6 +924,24 @@ Dofus is a tactical MMORPG with turn-based combat.
 References: `Dofus official site: <https://www.dofus.com/>`_
 
 
+.. _Proto_107:
+
+`NDPI_PROTOCOL_BLACKNUT`
+========================
+Blacknut is a cloud gaming platform offering access to a catalog of games streamed over the internet.
+
+References: `Blacknut official site <https://www.blacknut.com/>`_
+
+
+.. _Proto_108:
+
+`NDPI_PROTOCOL_BOOSTEROID`
+==========================
+Boosteroid is a cloud gaming service that enables users to play PC games on various devices via game streaming technology.
+
+References: `Boosteroid official site <https://boosteroid.com/>`_
+
+
 .. _Proto_109:
 
 `NDPI_PROTOCOL_GUILDWARS2`
@@ -3675,6 +3693,15 @@ References: `LagoFast official site: <https://www.lagofast.com/>`_
 GearUp Booster reduces game lag.
 
 References: `GearUp Booster official site: <https://www.gearupbooster.com/>`_
+
+
+.. _Proto_446:
+
+`NDPI_PROTOCOL_RUMBLE`
+======================
+Rumble is a video sharing and streaming platform known for hosting live streams and video content.
+
+References: `Rumble official site <https://rumble.com/>`_
 
 
 .. _Proto_447:
