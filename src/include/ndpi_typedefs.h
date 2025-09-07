@@ -984,6 +984,10 @@ struct ndpi_flow_udp_struct {
   u_int32_t hamachi_long[2];
   u_int16_t hamachi_short[2];
 
+  /* NDPI_PROTOCOL_MATTER */
+  u_int32_t matter_stage:2;
+  u_int32_t matter_msg_type;
+
   /* NDPI_PROTOCOL_QUIC */
   u_int8_t *quic_reasm_buf;
   u_int8_t *quic_reasm_buf_bitmap;
