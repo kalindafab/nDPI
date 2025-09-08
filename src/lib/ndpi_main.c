@@ -2920,7 +2920,7 @@ static void init_protocol_defaults(struct ndpi_detection_module_struct *ndpi_str
   ndpi_set_proto_defaults(ndpi_str,1 ,0 ,NDPI_PROTOCOL_ACCEPTABLE,NDPI_PROTOCOL_MATTER,
                           "Matter",NDPI_PROTOCOL_CATEGORY_IOT_SCADA, NDPI_PROTOCOL_QOE_CATEGORY_UNSPECIFIED,
                           ndpi_build_default_ports(ports_a, 0, 0, 0, 0, 0) ,
-                          ndpi_build_default_ports(ports_b, 5540, 5542, 5353, 0, 0),
+                          ndpi_build_default_ports(ports_b, 5540, 5542, 0, 0, 0),
                           0);
 
 
