@@ -43,6 +43,6 @@ NDPI_EXCLUDE_DISSECTOR(ndpi_struct, flow);
 void init_matter_dissector(struct ndpi_detection_module_struct *ndpi_struct) {
   register_dissector("Matter", ndpi_struct,
                      ndpi_search_matter,
-                     NDPI_SELECTION_BITMASK_PROTOCOL_V4_V6_UDP_WITH_PAYLOAD,
+                     NDPI_SELECTION_BITMASK_PROTOCOL_V6_UDP_WITH_PAYLOAD,
                      1, NDPI_PROTOCOL_MATTER);
 }
