@@ -45,7 +45,7 @@ static void ndpi_search_matter(struct ndpi_detection_module_struct *ndpi_struct,
         uint8_t session_type = flags & 0x0F;
 
         if(version <= 4 && session_type <= 4) {
-          uint16_t session_id = ntohs(*(uint16_t*)&packet->payload[1]);
+         uint16_t session_id = ntohs(*(uint16_t*)&packet->payload[2]);     
           if(session_id != 0) {
             NDPI_LOG_INFO(ndpi_struct, "Matter detected (ver=%u, session=%u, id=%u)\n",
                           version, session_type, session_id);
