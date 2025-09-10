@@ -3772,3 +3772,14 @@ The EasyWeather protocol is a proprietary UDP based protocool used by some weath
 Mudfish is a VPN dedicated for games to reduce lag and improve connection quality.
 
 References: `Mudfish official site: <https://mudfish.net/>`_
+
+
+.. _Proto_455:
+
+`NDPI_PROTOCOL_MATTER`
+======================
+Matter is an open-source, royalty-free connectivity standard for smart home devices.  
+It is designed to improve interoperability between IoT ecosystems, enabling secure and reliable communication primarily over IPv6 using UDP.
+
+References: `Matter official site <https://csa-iot.org/all-solutions/matter/>`_
+
