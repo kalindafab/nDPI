@@ -72,7 +72,7 @@ struct pcre2_struct {
 
 typedef struct {
   char *key;
-  u_int16_t value16;
+  u_int32_t value32;
   UT_hash_handle hh;
 } ndpi_str_hash_priv;
 
@@ -1199,17 +1199,14 @@ void ndpi_serialize_proto(struct ndpi_detection_module_struct *ndpi_struct,
                                                                               l7_protocol.protocol_by_ip));
   ndpi_serialize_string_uint32(serializer, "proto_by_ip_id", l7_protocol.protocol_by_ip);
   ndpi_serialize_string_uint32(serializer, "encrypted", ndpi_is_encrypted_proto(ndpi_struct, l7_protocol));
-  ndpi_protocol_breed_t breed =
-    ndpi_get_proto_breed(ndpi_struct,
-                         (l7_protocol.proto.app_protocol != NDPI_PROTOCOL_UNKNOWN ? l7_protocol.proto.app_protocol : l7_protocol.proto.master_protocol));
-  ndpi_serialize_string_string(serializer, "breed", ndpi_get_proto_breed_name(breed));
+  ndpi_serialize_string_string(serializer, "breed", ndpi_get_proto_breed_name(l7_protocol.breed));
   ndpi_serialize_string_uint32(serializer, "category_id", l7_protocol.category);
   ndpi_serialize_string_string(serializer, "category", ndpi_category_get_name(ndpi_struct, l7_protocol.category));
 }
 
 /* ********************************** */
 
-static void ndpi_tls2json(ndpi_serializer *serializer, struct ndpi_flow_struct *flow)
+static void ndpi_tls2json(ndpi_serializer *serializer, struct ndpi_flow_struct *flow, bool is_tls_proto)
 {
   if(flow->protos.tls_quic.ssl_version)
   {
@@ -1294,7 +1291,10 @@ static void ndpi_tls2json(ndpi_serializer *serializer, struct ndpi_flow_struct *
         ndpi_serialize_string_string(serializer, "fingerprint", buf);
       }
 
-      ndpi_serialize_string_uint32(serializer, "blocks", flow->l4.tcp.tls.num_tls_blocks);
+      if (is_tls_proto == true)
+      {
+        ndpi_serialize_string_uint32(serializer, "blocks", flow->l4.tcp.tls.num_tls_blocks);
+      }
 #ifdef TLS_HANDLE_SIGNATURE_ALGORITMS
       ndpi_serialize_string_uint32(serializer, "sig_algs", flow->protos.tls_quic.num_tls_signature_algorithms);
 #endif
@@ -1538,7 +1538,7 @@ int ndpi_dpi2json(struct ndpi_detection_module_struct *ndpi_struct,
                           flow->protos.tls_quic.quic_version);
     ndpi_serialize_string_string(serializer, "quic_version", quic_version);
 
-    ndpi_tls2json(serializer, flow);
+    ndpi_tls2json(serializer, flow, false);
 
     ndpi_serialize_end_of_block(serializer);
     break;
@@ -1769,11 +1769,11 @@ int ndpi_dpi2json(struct ndpi_detection_module_struct *ndpi_struct,
     break;
 
   case NDPI_PROTOCOL_TLS:
-    ndpi_tls2json(serializer, flow);
+    ndpi_tls2json(serializer, flow, true);
     break;
 
   case NDPI_PROTOCOL_DTLS:
-    ndpi_tls2json(serializer, flow);
+    ndpi_tls2json(serializer, flow, false);
 #ifdef CUSTOM_NDPI_PROTOCOLS
 #include "../../../nDPI-custom/ndpi_utils_dpi2json_dtls.c"
 #endif
@@ -2281,7 +2281,7 @@ const char* ndpi_risk2str(ndpi_risk_enum risk) {
     return("Risky Domain Name");
 
   case NDPI_MALICIOUS_FINGERPRINT:
-    return("Malicious Fingerpint");
+    return("Malicious Fingerprint");
 
   case NDPI_MALICIOUS_SHA1_CERTIFICATE:
     return("Malicious SSL Cert/SHA1 Fingerp.");
@@ -2878,7 +2878,7 @@ void ndpi_hash_free(ndpi_str_hash **h) {
 
 /* ******************************************************************** */
 
-int ndpi_hash_find_entry(ndpi_str_hash *h, char *key, u_int key_len, u_int16_t *value) {
+int ndpi_hash_find_entry(ndpi_str_hash *h, char *key, u_int key_len, u_int32_t *value) {
   ndpi_str_hash_priv *h_priv = (ndpi_str_hash_priv *)h;
   ndpi_str_hash_priv *item;
 
@@ -2889,7 +2889,7 @@ int ndpi_hash_find_entry(ndpi_str_hash *h, char *key, u_int key_len, u_int16_t *
 
   if (item != NULL) {
     if(value != NULL)
-      *value = item->value16;
+      *value = item->value32;
 
     return 0;
   } else
@@ -2898,7 +2898,7 @@ int ndpi_hash_find_entry(ndpi_str_hash *h, char *key, u_int key_len, u_int16_t *
 
 /* ******************************************************************** */
 
-int ndpi_hash_add_entry(ndpi_str_hash **h, char *key, u_int8_t key_len, u_int16_t value) {
+int ndpi_hash_add_entry(ndpi_str_hash **h, char *key, u_int8_t key_len, u_int32_t value) {
   ndpi_str_hash_priv *h_priv = (ndpi_str_hash_priv *)*h;
   ndpi_str_hash_priv *item, *ret_found;
 
@@ -2908,7 +2908,7 @@ int ndpi_hash_add_entry(ndpi_str_hash **h, char *key, u_int8_t key_len, u_int16_
   HASH_FIND(hh, h_priv, key, key_len, item);
 
   if(item != NULL) {
-    item->value16 = value;
+    item->value32 = value;
     return(1); /* Entry already present */
   }
 
@@ -2926,7 +2926,7 @@ int ndpi_hash_add_entry(ndpi_str_hash **h, char *key, u_int8_t key_len, u_int16_
     item->key[key_len] = '\0';
   }
 
-  item->value16 = value;
+  item->value32 = value;
 
   HASH_ADD(hh, *((ndpi_str_hash_priv **)h), key[0], key_len, item);
 
@@ -4013,7 +4013,7 @@ u_int ndpi_encode_domain(struct ndpi_detection_module_struct *ndpi_str,
   u_int out_idx = 0, i, buf_shift = 0, domain_buf_len, compressed_len, suffix_len, domain_len;
   u_int32_t value = 0;
   u_char domain_buf[256], compressed[128];
-  u_int16_t domain_id = 0;
+  u_int32_t domain_id = 0;
   const char *suffix;
 
   if(!ndpi_domain_mapper_initialized) {
@@ -4656,7 +4656,9 @@ u_int16_t ndpi_get_master_proto(struct ndpi_detection_module_struct *ndpi_struct
 
 char* ndpi_compute_ndpi_flow_fingerprint(struct ndpi_detection_module_struct *ndpi_str,
 					 struct ndpi_flow_struct *flow) {
-  if(ndpi_str->cfg.ndpi_fingerprint_enabled && (flow->ndpi.fingerprint == NULL)) {
+  if(ndpi_str->cfg.ndpi_fingerprint_enabled &&
+     (flow->ndpi.fingerprint == NULL) &&
+     ndpi_stack_is_tls_like(&flow->protocol_stack)) {
     char *l4_fp = flow->tcp.fingerprint ? flow->tcp.fingerprint : "no_l4_fp";
     char *l7_pf = "no_app_fp_cli";
     char *l7_pf_server = "no_app_fp_srv";
@@ -4692,8 +4694,9 @@ char* ndpi_compute_ndpi_flow_fingerprint(struct ndpi_detection_module_struct *nd
 
       flow->ndpi.fingerprint = ndpi_strdup((char*)fp_buf);
 
-      if(ndpi_str->ndpifp_custom_protos != NULL) {
-	u_int16_t proto_id;
+      if(flow->ndpi.fingerprint != NULL &&
+         ndpi_str->ndpifp_custom_protos != NULL) {
+	u_int32_t proto_id;
 
 	/* This protocol has been defined in protos.txt-like files */
 	if(ndpi_hash_find_entry(ndpi_str->ndpifp_custom_protos,
