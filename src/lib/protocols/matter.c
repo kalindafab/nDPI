@@ -40,25 +40,25 @@ static void ndpi_search_matter(struct ndpi_detection_module_struct *ndpi_struct,
 
       /* Matter messages usually have at least a 16-byte header (secure session framing) */
       if(packet->payload_packet_len >= 16) {
-      uint8_t flags = packet->payload[0];
-      uint8_t version = (flags >> 4) & 0x0F;  
-      uint8_t session_type = flags & 0x0F;    
+        uint8_t flags = packet->payload[0];
+        uint8_t version = (flags >> 4) & 0x0F;
+        uint8_t session_type = flags & 0x0F;
 
-      if(version <= 4 && session_type <= 4) {
-        uint16_t session_id = ntohs(*(uint16_t*)&packet->payload[1]);
-        if(session_id != 0) {
-          NDPI_LOG_INFO(ndpi_struct, "Matter detected (ver=%u, session=%u, id=%u)\n",
-                        version, session_type, session_id);
-          ndpi_set_detected_protocol(ndpi_struct, flow, NDPI_PROTOCOL_MATTER,
-                                     NDPI_PROTOCOL_UNKNOWN, NDPI_CONFIDENCE_DPI);
-          return;
+        if(version <= 4 && session_type <= 4) {
+          uint16_t session_id = ntohs(*(uint16_t*)&packet->payload[1]);
+          if(session_id != 0) {
+            NDPI_LOG_INFO(ndpi_struct, "Matter detected (ver=%u, session=%u, id=%u)\n",
+                          version, session_type, session_id);
+            ndpi_set_detected_protocol(ndpi_struct, flow, NDPI_PROTOCOL_MATTER,
+                                       NDPI_PROTOCOL_UNKNOWN, NDPI_CONFIDENCE_DPI);
+            return;
+          }
         }
       }
     }
   }
-}
 
-NDPI_EXCLUDE_DISSECTOR(ndpi_struct, flow);
+  NDPI_EXCLUDE_DISSECTOR(ndpi_struct, flow);
 }
 
 void init_matter_dissector(struct ndpi_detection_module_struct *ndpi_struct) {
