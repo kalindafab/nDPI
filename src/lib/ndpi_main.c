@@ -2923,9 +2923,6 @@ static void init_protocol_defaults(struct ndpi_detection_module_struct *ndpi_str
                           ndpi_build_default_ports(ports_b, 5540, 5542, 0, 0, 0),
                           0);
 
-
-
-
 #ifdef CUSTOM_NDPI_PROTOCOLS
 #include "../../../nDPI-custom/custom_ndpi_main.c"
 #endif
@@ -7297,7 +7294,7 @@ static int dissectors_init(struct ndpi_detection_module_struct *ndpi_str) {
   /* EasyWeather Wifi Protocol */
   init_easyweather_dissector(ndpi_str);
 
-
+  /* MATTER */
   init_matter_dissector(ndpi_str);
 
 #ifdef CUSTOM_NDPI_PROTOCOLS
