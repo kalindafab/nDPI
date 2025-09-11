@@ -46,13 +46,12 @@ static void ndpi_search_matter(struct ndpi_detection_module_struct *ndpi_struct,
 
         if(version <= 4 && session_type <= 4) {
          uint16_t session_id = ntohs(*(uint16_t*)&packet->payload[2]);     
-          if(session_id != 0) {
+          
             NDPI_LOG_INFO(ndpi_struct, "Matter detected (ver=%u, session=%u, id=%u)\n",
                           version, session_type, session_id);
             ndpi_set_detected_protocol(ndpi_struct, flow, NDPI_PROTOCOL_MATTER,
                                        NDPI_PROTOCOL_UNKNOWN, NDPI_CONFIDENCE_DPI);
             return;
-          }
         }
       }
     }
