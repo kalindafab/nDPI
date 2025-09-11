@@ -3774,7 +3774,16 @@ Mudfish is a VPN dedicated for games to reduce lag and improve connection qualit
 References: `Mudfish official site: <https://mudfish.net/>`_
 
 
-.. _Proto_455:
+
+
+`NDPI_PROTOCOL_TRISTATION`
+==========================
+Proprietary, industrial grade, Safety Instrumented Systems (SIS) protocol for safety-shutdown technologies.
+
+References: `Triconex Honeypot: https://github.com/NozomiNetworks/tricotools`_
+
+.. _Proto_456:
+
 
 `NDPI_PROTOCOL_MATTER`
 ======================
@@ -3782,4 +3791,3 @@ Matter is an open-source, royalty-free connectivity standard for smart home devi
 It is designed to improve interoperability between IoT ecosystems, enabling secure and reliable communication primarily over IPv6 using UDP.
 
 References: `Matter official site <https://csa-iot.org/all-solutions/matter/>`_
-
