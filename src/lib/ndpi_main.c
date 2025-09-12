@@ -2922,12 +2922,12 @@ static void init_protocol_defaults(struct ndpi_detection_module_struct *ndpi_str
                           "Matter",NDPI_PROTOCOL_CATEGORY_IOT_SCADA, NDPI_PROTOCOL_QOE_CATEGORY_UNSPECIFIED,
                           ndpi_build_default_ports(ports_a, 0, 0, 0, 0, 0) /* TCP */ ,
                           ndpi_build_default_ports(ports_b, 5540, 5542, 0, 0, 0) /* UDP */,
+                          0);
 
   ndpi_set_proto_defaults(ndpi_str, 1 /* cleartext */, 1 /* app proto */, NDPI_PROTOCOL_ACCEPTABLE, NDPI_PROTOCOL_TRISTATION,
                           "TriStation", NDPI_PROTOCOL_CATEGORY_IOT_SCADA, NDPI_PROTOCOL_QOE_CATEGORY_UNSPECIFIED,
                           ndpi_build_default_ports(ports_a, 0, 0, 0, 0, 0) /* TCP */,
                           ndpi_build_default_ports(ports_b, 1501, 1502, 0, 0, 0) /* UDP */,
-
                           0);
 
 #ifdef CUSTOM_NDPI_PROTOCOLS
@@ -7315,7 +7315,7 @@ static int dissectors_init(struct ndpi_detection_module_struct *ndpi_str) {
   init_matter_dissector(ndpi_str);
   
   /* TriStation Safety Instrumented Systems dissector */
-  init_tristation_dissector(ndpi_st
+  init_tristation_dissector(ndpi_str);
 
 #ifdef CUSTOM_NDPI_PROTOCOLS
 #include "../../../nDPI-custom/custom_ndpi_main_init.c"
