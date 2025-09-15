@@ -484,10 +484,9 @@ typedef enum {
   NDPI_PROTOCOL_GLBP                  = 452,
   NDPI_PROTOCOL_EASYWEATHER           = 453,
   NDPI_PROTOCOL_MUDFISH               = 454,
-
   NDPI_PROTOCOL_TRISTATION            = 455,
-  
-  NDPI_PROTOCOL_MATTER                = 456,
+  NDPI_PROTOCOL_SAMSUNG_SDP           = 456,
+  NDPI_PROTOCOL_MATTER                = 457,
 
 
 #ifdef CUSTOM_NDPI_PROTOCOLS

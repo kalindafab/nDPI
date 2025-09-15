@@ -3774,16 +3774,21 @@ Mudfish is a VPN dedicated for games to reduce lag and improve connection qualit
 References: `Mudfish official site: <https://mudfish.net/>`_
 
 
-
-
 `NDPI_PROTOCOL_TRISTATION`
 ==========================
 Proprietary, industrial grade, Safety Instrumented Systems (SIS) protocol for safety-shutdown technologies.
 
 References: `Triconex Honeypot: https://github.com/NozomiNetworks/tricotools`_
 
+
 .. _Proto_456:
 
+`NDPI_PROTOCOL_SAMSUNG_SDP`
+===========================
+Proprietary service discovery protocol used by Samsung devices i.e. TVs, Soundbars or Smartphones.
+
+
+.. _Proto_457:
 
 `NDPI_PROTOCOL_MATTER`
 ======================
