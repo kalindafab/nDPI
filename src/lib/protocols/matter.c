@@ -40,15 +40,21 @@ static void ndpi_search_matter(struct ndpi_detection_module_struct *ndpi_struct,
 
       /* Matter messages usually have at least a 16-byte header (secure session framing) */
       if(packet->payload_packet_len >= 16) {
-        uint8_t flags = packet->payload[0];
-        uint8_t version = (flags >> 4) & 0x0F;
-        uint8_t session_type = flags & 0x0F;
+        uint8_t message_flags, version, dsiz, security_flags;
 
-        if(version <= 4 && session_type <= 4) {
-         uint16_t session_id = ntohs(*(uint16_t*)&packet->payload[2]);     
+        message_flags = packet->payload[0];
+        version = (message_flags >> 4) & 0x0F;
+        dsiz = message_flags & 0x03;
+        security_flags = packet->payload[3];
+
+        /* https://csa-iot.org/wp-content/uploads/2024/11/24-27349-006_Matter-1.4-Core-Specification.pdf 4.4.1 */
+        /* TODO: quite weak...*/
+        if(version <= 4 &&
+           (message_flags & 0x80) == 0 /* Reserved bit */ &&
+           dsiz <= 2 &&
+           (security_flags & 0x1C) == 0 /* Reserved bits */) {
           
-            NDPI_LOG_INFO(ndpi_struct, "Matter detected (ver=%u, session=%u, id=%u)\n",
-                          version, session_type, session_id);
+            NDPI_LOG_INFO(ndpi_struct, "Found Matter\n");
             ndpi_set_detected_protocol(ndpi_struct, flow, NDPI_PROTOCOL_MATTER,
                                        NDPI_PROTOCOL_UNKNOWN, NDPI_CONFIDENCE_DPI);
             return;
