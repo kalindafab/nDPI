@@ -35,9 +35,15 @@ static void ndpi_search_matter(struct ndpi_detection_module_struct *ndpi_struct,
   u_int16_t matter_port2 = htons(5542);
 
   if(packet->udp) {
-    if((packet->udp->dest == matter_port1) || (packet->udp->source == matter_port1) ||
-       (packet->udp->dest == matter_port2) || (packet->udp->source == matter_port2)) {
+    u_int16_t sport = ntohs(packet->udp->source);
+    u_int16_t dport = ntohs(packet->udp->dest);
 
+    if(!(sport == 5540 || dport == 5540 || sport == 5542 || dport == 5542)) {
+      NDPI_EXCLUDE_DISSECTOR(ndpi_struct, flow);
+      return;
+    }
+
+    { 
       /* Matter messages usually have at least a 16-byte header (secure session framing) */
       if(packet->payload_packet_len >= 16) {
         uint8_t message_flags, version, dsiz, security_flags;
@@ -45,14 +51,25 @@ static void ndpi_search_matter(struct ndpi_detection_module_struct *ndpi_struct,
         message_flags = packet->payload[0];
         version = (message_flags >> 4) & 0x0F;
         dsiz = message_flags & 0x03;
-        security_flags = packet->payload[3];
+        security_flags = packet->payload[1];
+        uint8_t session_type = (security_flags >> 1) & 0x03;
 
         /* https://csa-iot.org/wp-content/uploads/2024/11/24-27349-006_Matter-1.4-Core-Specification.pdf 4.4.1 */
         /* TODO: quite weak...*/
-        if(version <= 4 &&
-           (message_flags & 0x80) == 0 /* Reserved bit */ &&
+        if(version <= 1 &&
+           (message_flags & 0x8C) == 0 /* Reserved bits 7,3,2 */ &&
            dsiz <= 2 &&
-           (security_flags & 0x1C) == 0 /* Reserved bits */) {
+           (security_flags & 0xE1) == 0 /* Reserved bits */ &&
+            session_type <= 2) {
+
+          uint16_t session_id = ntohs(*(uint16_t*)&packet->payload[2]); 
+          
+          if((session_type == 0 && session_id != 0) ||  
+             (session_type > 0 && session_id == 0)) {   
+            NDPI_EXCLUDE_DISSECTOR(ndpi_struct, flow);   
+            return;                                       
+          } 
+                            
           
             NDPI_LOG_INFO(ndpi_struct, "Found Matter\n");
             ndpi_set_detected_protocol(ndpi_struct, flow, NDPI_PROTOCOL_MATTER,
