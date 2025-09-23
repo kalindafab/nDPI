@@ -30,14 +30,11 @@ static void ndpi_search_matter(struct ndpi_detection_module_struct *ndpi_struct,
 
   NDPI_LOG_DBG(ndpi_struct, "search Matter\n");
 
-  /* Matter typically uses UDP ports 5540 (operational), 5542 (commissioning) */
-  u_int16_t matter_port1 = htons(5540);
-  u_int16_t matter_port2 = htons(5542);
-
   if(packet->udp) {
     u_int16_t sport = ntohs(packet->udp->source);
     u_int16_t dport = ntohs(packet->udp->dest);
 
+    /* Matter typically uses UDP ports 5540 (operational), 5542 (commissioning) */
     if(!(sport == 5540 || dport == 5540 || sport == 5542 || dport == 5542)) {
       NDPI_EXCLUDE_DISSECTOR(ndpi_struct, flow);
       return;
@@ -52,17 +49,17 @@ static void ndpi_search_matter(struct ndpi_detection_module_struct *ndpi_struct,
         version = (message_flags >> 4) & 0x0F;
         dsiz = message_flags & 0x03;
         security_flags = packet->payload[3];
-        uint8_t session_type = (security_flags >> 1) & 0x03;
+        uint8_t session_type = security_flags & 0x03;
 
         /* https://csa-iot.org/wp-content/uploads/2024/11/24-27349-006_Matter-1.4-Core-Specification.pdf 4.4.1 */
         /* TODO: quite weak...*/
         if(version <= 1 &&
-           (message_flags & 0x8C) == 0 /* Reserved bits 7,3,2 */ &&
+           (message_flags & 0x08) == 0 /* Reserved bit */ &&
            dsiz <= 2 &&
-           (security_flags & 0xE1) == 0 /* Reserved bits */ &&
+           (security_flags & 0x1C) == 0 /* Reserved bits */ &&
             session_type <= 2) {
 
-          uint16_t session_id = ntohs(*(uint16_t*)&packet->payload[2]); 
+          uint16_t session_id = ntohs(*(uint16_t *)&packet->payload[1]);
           
           if((session_type == 0 && session_id != 0) ||  
              (session_type > 0 && session_id == 0)) {   
@@ -70,11 +67,10 @@ static void ndpi_search_matter(struct ndpi_detection_module_struct *ndpi_struct,
             return;                                       
           } 
                             
-          
-            NDPI_LOG_INFO(ndpi_struct, "Found Matter\n");
-            ndpi_set_detected_protocol(ndpi_struct, flow, NDPI_PROTOCOL_MATTER,
-                                       NDPI_PROTOCOL_UNKNOWN, NDPI_CONFIDENCE_DPI);
-            return;
+          NDPI_LOG_INFO(ndpi_struct, "Found Matter\n");
+          ndpi_set_detected_protocol(ndpi_struct, flow, NDPI_PROTOCOL_MATTER,
+                                     NDPI_PROTOCOL_UNKNOWN, NDPI_CONFIDENCE_DPI);
+          return;
         }
       }
     }
