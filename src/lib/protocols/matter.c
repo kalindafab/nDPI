@@ -51,7 +51,7 @@ static void ndpi_search_matter(struct ndpi_detection_module_struct *ndpi_struct,
         message_flags = packet->payload[0];
         version = (message_flags >> 4) & 0x0F;
         dsiz = message_flags & 0x03;
-        security_flags = packet->payload[1];
+        security_flags = packet->payload[3];
         uint8_t session_type = (security_flags >> 1) & 0x03;
 
         /* https://csa-iot.org/wp-content/uploads/2024/11/24-27349-006_Matter-1.4-Core-Specification.pdf 4.4.1 */
