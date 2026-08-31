@@ -1,5 +1,2 @@
-# Match by Common Name
-nDPI_TestApp@tls_cert:"CN=nDPI_TestCert"
-
-# Match by Organization
-nDPI_TestOrg@tls_cert:"O=nDPI_Test_Org"
+# Match by TLS certificate hash
+tls_cert_hash:0a:a0:ed:1a:71:50:5d:37:c4:4f:8f:d0:9a:0f:3e:a0:17:6e:e9:58@nDPI_TestApp
